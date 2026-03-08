@@ -1,4 +1,7 @@
 package com.simplesystem.todo.repository;
 
-public class TodoRepository {
+import com.simplesystem.todo.domain.TodoItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TodoRepository extends JpaRepository<TodoItem, Long> {
 }
