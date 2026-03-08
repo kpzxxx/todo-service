@@ -1,10 +1,15 @@
 package com.simplesystem.todo.domain;
 
+import com.simplesystem.todo.exception.BadRequestException;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDateTime;
 
+@Getter
+@NoArgsConstructor
 @Entity
 @Table(name = "todo_item")
 public class TodoItem {
@@ -28,13 +33,10 @@ public class TodoItem {
 
   private LocalDateTime doneAt;
 
-  protected TodoItem() {
-  }
-
   public TodoItem(String description, LocalDateTime dueAt) {
 
     if (StringUtils.isBlank(description)) {
-      throw new IllegalArgumentException("Description cannot be blank");
+      throw new BadRequestException("Description cannot be blank");
     }
 
     this.description = description;
@@ -53,30 +55,6 @@ public class TodoItem {
     }
   }
 
-
-  public Long getId() {
-    return id;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public TodoStatus getStatus() {
-    return status;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getDueAt() {
-    return dueAt;
-  }
-
-  public LocalDateTime getDoneAt() {
-    return doneAt;
-  }
 
   public void markDone() {
     this.status = TodoStatus.DONE;
