@@ -2,10 +2,10 @@ package com.simplesystem.todo.service;
 
 import com.simplesystem.todo.domain.TodoItem;
 import com.simplesystem.todo.domain.TodoStatus;
-import com.simplesystem.todo.exception.BadRequestException;
-import com.simplesystem.todo.exception.NotFoundException;
+import com.simplesystem.todo.exception.BusinessException;
 import com.simplesystem.todo.repository.TodoRepository;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +27,9 @@ public class TodoService {
 
   public TodoItem getTodo(Long id) {
     return todoRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Todo " + id + " not found"));
+        .orElseThrow(() -> new BusinessException("TODO_NOT_FOUND",
+            HttpStatus.NOT_FOUND,
+            "Todo " + id + " not found"));
   }
 
   public List<TodoItem> getTodos(boolean all) {
@@ -40,10 +42,12 @@ public class TodoService {
   @Transactional
   public TodoItem updateDescription(Long id, String description) {
     if (StringUtils.isBlank(description)) {
-      throw new BadRequestException("Description cannot be blank");
+      throw new BusinessException("TODO_VALIDATION_FAILED",
+          HttpStatus.BAD_REQUEST,
+          "Description cannot be blank");
     }
 
-    TodoItem todo = getExistingTodo(id);
+    TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
 
     todo.updateDescription(description.trim());
@@ -52,7 +56,7 @@ public class TodoService {
 
   @Transactional
   public TodoItem markDone(Long id) {
-    TodoItem todo = getExistingTodo(id);
+    TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
 
     todo.markDone();
@@ -61,26 +65,22 @@ public class TodoService {
 
   @Transactional
   public TodoItem markNotDone(Long id) {
-    TodoItem todo = getExistingTodo(id);
+    TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
 
     todo.markNotDone();
     return todoRepository.save(todo);
   }
 
-  private TodoItem getExistingTodo(Long id) {
-    return todoRepository.findById(id)
-        .orElseThrow(() -> new NotFoundException("Todo item " + id + " not found"));
-  }
-
   // Prevent modification of todos that are already past due (even if the scheduler has not updated the status yet).
   private void ensureNotOverdue(TodoItem todo) {
     if (todo.getStatus() == TodoStatus.PAST_DUE
         || (todo.getStatus() != TodoStatus.DONE
-            && todo.getDueAt() != null
-            && todo.getDueAt().isBefore(LocalDateTime.now()))
+        && todo.getDueAt() != null
+        && todo.getDueAt().isBefore(LocalDateTime.now()))
     ) {
-      throw new BadRequestException("Past due items cannot be modified");
+      throw new BusinessException("TODO_MODIFICATION_NOT_ALLOWED",
+          HttpStatus.BAD_REQUEST, "Past due items cannot be modified");
     }
   }
 }
