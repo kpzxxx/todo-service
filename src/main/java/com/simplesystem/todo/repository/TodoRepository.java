@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface TodoRepository extends JpaRepository<TodoItem, Long> {
-  List<TodoItem> findByStatusNot(TodoStatus status);
+  List<TodoItem> findByStatus(TodoStatus status);
 
   // Bulk update overdue todos to PAST_DUE
   @Modifying

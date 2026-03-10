@@ -36,7 +36,7 @@ public class TodoService {
     if (all) {
       return todoRepository.findAll();
     }
-    return todoRepository.findByStatusNot(TodoStatus.DONE);
+    return todoRepository.findByStatus(TodoStatus.NOT_DONE);
   }
 
   @Transactional
@@ -74,11 +74,7 @@ public class TodoService {
 
   // Prevent modification of todos that are already past due (even if the scheduler has not updated the status yet).
   private void ensureNotOverdue(TodoItem todo) {
-    if (todo.getStatus() == TodoStatus.PAST_DUE
-        || (todo.getStatus() != TodoStatus.DONE
-        && todo.getDueAt() != null
-        && todo.getDueAt().isBefore(LocalDateTime.now()))
-    ) {
+    if (todo.isOverdue()) {
       throw new BusinessException("TODO_MODIFICATION_NOT_ALLOWED",
           HttpStatus.BAD_REQUEST, "Past due items cannot be modified");
     }
