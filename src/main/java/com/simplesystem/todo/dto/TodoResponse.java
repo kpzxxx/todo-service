@@ -20,7 +20,7 @@ public record TodoResponse(Long id,
     return new TodoResponse(
         item.getId(),
         item.getDescription(),
-        // If todoItem's status is not DONE, and is overdue, return PAST_DUE.
+        // If the item is not DONE and overdue, return PAST_DUE.
         item.isOverdue() && item.getStatus() != TodoStatus.DONE ?
             TodoStatus.PAST_DUE : item.getStatus(),
         item.getCreatedAt(),
