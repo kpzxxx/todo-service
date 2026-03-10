@@ -59,7 +59,7 @@ public class TodoService {
     TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
 
-    // idempotent protection (state validation)
+    // Idempotent protection (state validation)
     if (todo.getStatus() != TodoStatus.NOT_DONE) {
       return todo;
     }
