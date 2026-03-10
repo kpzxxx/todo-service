@@ -71,4 +71,10 @@ public class TodoItem {
   public void updateDescription(String description) {
     this.description = description;
   }
+
+  public boolean isOverdue() {
+    return status != TodoStatus.DONE
+        && dueAt != null
+        && dueAt.isBefore(LocalDateTime.now());
+  }
 }

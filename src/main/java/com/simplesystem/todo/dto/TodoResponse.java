@@ -20,7 +20,7 @@ public record TodoResponse(Long id,
     return new TodoResponse(
         item.getId(),
         item.getDescription(),
-        item.getStatus(),
+        item.isOverdue() ? TodoStatus.PAST_DUE : item.getStatus(),
         item.getCreatedAt(),
         item.getDueAt(),
         item.getDoneAt()
