@@ -1,11 +1,8 @@
 package com.simplesystem.todo.domain;
 
-import com.simplesystem.todo.exception.BusinessException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
@@ -35,12 +32,6 @@ public class TodoItem {
   private LocalDateTime doneAt;
 
   public TodoItem(String description, LocalDateTime dueAt) {
-
-    if (StringUtils.isBlank(description)) {
-      throw new BusinessException( "TODO_VALIDATION_FAILED",
-          HttpStatus.BAD_REQUEST, "Description cannot be blank");
-    }
-
     this.description = description;
     this.status = TodoStatus.NOT_DONE;
     this.createdAt = LocalDateTime.now();

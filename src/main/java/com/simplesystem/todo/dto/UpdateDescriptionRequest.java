@@ -1,4 +1,6 @@
 package com.simplesystem.todo.dto;
 
-public record UpdateDescriptionRequest(String description) {
+import jakarta.validation.constraints.NotBlank;
+
+public record UpdateDescriptionRequest(@NotBlank String description) {
 }

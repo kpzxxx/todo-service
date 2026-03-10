@@ -5,6 +5,7 @@ import com.simplesystem.todo.dto.CreateTodoRequest;
 import com.simplesystem.todo.dto.TodoResponse;
 import com.simplesystem.todo.dto.UpdateDescriptionRequest;
 import com.simplesystem.todo.service.TodoService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,7 +23,7 @@ public class TodoController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public TodoResponse createTodo(@RequestBody CreateTodoRequest request) {
+  public TodoResponse createTodo(@Valid @RequestBody CreateTodoRequest request) {
     TodoItem item = todoService.createTodo(request.description(), request.dueAt());
     return TodoResponse.from(item);
   }
@@ -42,7 +43,7 @@ public class TodoController {
 
   @PatchMapping("/{id}/description")
   public TodoResponse updateDescription(@PathVariable Long id,
-                                        @RequestBody UpdateDescriptionRequest request) {
+                                        @Valid @RequestBody UpdateDescriptionRequest request) {
     return TodoResponse.from(todoService.updateDescription(id, request.description()));
   }
 

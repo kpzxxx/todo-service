@@ -4,7 +4,6 @@ import com.simplesystem.todo.domain.TodoItem;
 import com.simplesystem.todo.domain.TodoStatus;
 import com.simplesystem.todo.exception.BusinessException;
 import com.simplesystem.todo.repository.TodoRepository;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +40,6 @@ public class TodoService {
 
   @Transactional
   public TodoItem updateDescription(Long id, String description) {
-    if (StringUtils.isBlank(description)) {
-      throw new BusinessException("TODO_VALIDATION_FAILED",
-          HttpStatus.BAD_REQUEST,
-          "Description cannot be blank");
-    }
-
     TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
 
