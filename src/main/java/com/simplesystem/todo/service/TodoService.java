@@ -59,6 +59,11 @@ public class TodoService {
     TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
 
+    // idempotent protection (state validation)
+    if (todo.getStatus() != TodoStatus.NOT_DONE) {
+      return todo;
+    }
+
     todo.markDone();
     return todoRepository.save(todo);
   }
@@ -67,6 +72,11 @@ public class TodoService {
   public TodoItem markNotDone(Long id) {
     TodoItem todo = getTodo(id);
     ensureNotOverdue(todo);
+
+    // Only DONE items can be marked as not done.
+    if (todo.getStatus() != TodoStatus.DONE) {
+      return todo;
+    }
 
     todo.markNotDone();
     return todoRepository.save(todo);

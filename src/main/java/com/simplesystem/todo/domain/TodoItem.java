@@ -73,8 +73,7 @@ public class TodoItem {
   }
 
   public boolean isOverdue() {
-    return status != TodoStatus.DONE
-        && dueAt != null
+    return dueAt != null
         && dueAt.isBefore(LocalDateTime.now());
   }
 }
