@@ -5,15 +5,14 @@ import com.simplesystem.todo.domain.TodoStatus;
 import com.simplesystem.todo.exception.BadRequestException;
 import com.simplesystem.todo.exception.NotFoundException;
 import com.simplesystem.todo.repository.TodoRepository;
-import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-@Transactional
 public class TodoService {
   private final TodoRepository todoRepository;
 
@@ -38,29 +37,32 @@ public class TodoService {
     return todoRepository.findByStatusNot(TodoStatus.DONE);
   }
 
+  @Transactional
   public TodoItem updateDescription(Long id, String description) {
     if (StringUtils.isBlank(description)) {
       throw new BadRequestException("Description cannot be blank");
     }
 
     TodoItem todo = getExistingTodo(id);
-    ensureNotPastDue(todo);
+    ensureNotOverdue(todo);
 
     todo.updateDescription(description.trim());
     return todoRepository.save(todo);
   }
 
+  @Transactional
   public TodoItem markDone(Long id) {
     TodoItem todo = getExistingTodo(id);
-    ensureNotPastDue(todo);
+    ensureNotOverdue(todo);
 
     todo.markDone();
     return todoRepository.save(todo);
   }
 
+  @Transactional
   public TodoItem markNotDone(Long id) {
     TodoItem todo = getExistingTodo(id);
-    ensureNotPastDue(todo);
+    ensureNotOverdue(todo);
 
     todo.markNotDone();
     return todoRepository.save(todo);
@@ -71,8 +73,13 @@ public class TodoService {
         .orElseThrow(() -> new NotFoundException("Todo item " + id + " not found"));
   }
 
-  private void ensureNotPastDue(TodoItem todo) {
-    if (todo.getStatus() == TodoStatus.PAST_DUE) {
+  // Prevent modification of todos that are already past due (even if the scheduler has not updated the status yet).
+  private void ensureNotOverdue(TodoItem todo) {
+    if (todo.getStatus() == TodoStatus.PAST_DUE
+        || (todo.getStatus() != TodoStatus.DONE
+            && todo.getDueAt() != null
+            && todo.getDueAt().isBefore(LocalDateTime.now()))
+    ) {
       throw new BadRequestException("Past due items cannot be modified");
     }
   }
