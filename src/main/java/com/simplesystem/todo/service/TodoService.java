@@ -8,19 +8,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 
 @Service
 public class TodoService {
   private final TodoRepository todoRepository;
 
-  public TodoService(TodoRepository todoRepository) {
+  private final Clock clock;
+
+  public TodoService(TodoRepository todoRepository, Clock clock) {
     this.todoRepository = todoRepository;
+    this.clock = clock;
   }
 
-  public TodoItem createTodo(String description, LocalDateTime dueAt) {
-    TodoItem item = new TodoItem(description, dueAt);
+  public TodoItem createTodo(String description, Instant dueAt) {
+    TodoItem item = new TodoItem(description, dueAt, Instant.now(clock));
     return todoRepository.save(item);
   }
 
@@ -57,7 +61,7 @@ public class TodoService {
       return todo;
     }
 
-    todo.markDone();
+    todo.markDone(Instant.now(clock));
     return todoRepository.save(todo);
   }
 
@@ -77,7 +81,7 @@ public class TodoService {
 
   // Prevent modification of todos that are already past due (even if the scheduler has not updated the status yet).
   private void ensureNotOverdue(TodoItem todo) {
-    if (todo.isOverdue()) {
+    if (todo.isOverdue(Instant.now(clock))) {
       throw new BusinessException("TODO_MODIFICATION_NOT_ALLOWED",
           HttpStatus.BAD_REQUEST, "Past due items cannot be modified");
     }

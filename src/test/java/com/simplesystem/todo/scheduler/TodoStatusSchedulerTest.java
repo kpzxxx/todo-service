@@ -7,9 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDateTime;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 @SpringBootTest
@@ -20,9 +22,13 @@ class TodoStatusSchedulerTest {
   @Autowired
   private TodoStatusScheduler todoStatusScheduler;
 
+  @Autowired
+  private Clock clock;
+
   @Test
   void markPastDueTodos_shouldUpdateOverdueNotDoneTodos() {
-    TodoItem todo = new TodoItem("Overdue task", LocalDateTime.now().minusDays(1));
+    TodoItem todo = new TodoItem("Overdue task",
+        Instant.now(clock).minus(1, ChronoUnit.DAYS), Instant.now(clock));
     todo = todoRepository.save(todo);
 
     todoStatusScheduler.markPastDueTodos();

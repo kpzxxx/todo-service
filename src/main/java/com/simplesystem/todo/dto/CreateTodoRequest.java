@@ -4,8 +4,8 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public record CreateTodoRequest(@NotBlank String description,
-                                @NotNull @Future LocalDateTime dueAt) {
+                                @NotNull @Future Instant dueAt) {
 }

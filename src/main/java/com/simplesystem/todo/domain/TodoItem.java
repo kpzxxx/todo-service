@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @NoArgsConstructor
@@ -24,34 +24,31 @@ public class TodoItem {
   private TodoStatus status;
 
   @Column(nullable = false, updatable = false)
-  private LocalDateTime createdAt;
+  private Instant createdAt;
 
   @Column(nullable = false)
-  private LocalDateTime dueAt;
+  private Instant dueAt;
 
-  private LocalDateTime doneAt;
+  private Instant doneAt;
 
-  public TodoItem(String description, LocalDateTime dueAt) {
+  public TodoItem(String description, Instant dueAt, Instant now) {
     this.description = description;
     this.status = TodoStatus.NOT_DONE;
-    this.createdAt = LocalDateTime.now();
     this.dueAt = dueAt;
+    this.createdAt = now;
   }
 
   @PrePersist
   public void prePersist() {
-    if (this.createdAt == null) {
-      this.createdAt = LocalDateTime.now();
-    }
     if (this.status == null) {
       this.status = TodoStatus.NOT_DONE;
     }
   }
 
 
-  public void markDone() {
+  public void markDone(Instant now) {
     this.status = TodoStatus.DONE;
-    this.doneAt = LocalDateTime.now();
+    this.doneAt = now;
   }
 
   public void markNotDone() {
@@ -63,8 +60,8 @@ public class TodoItem {
     this.description = description;
   }
 
-  public boolean isOverdue() {
+  public boolean isOverdue(Instant now) {
     return dueAt != null
-        && dueAt.isBefore(LocalDateTime.now());
+        && dueAt.isBefore(now);
   }
 }
